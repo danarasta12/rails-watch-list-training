@@ -1,6 +1,9 @@
 <div class="container">
   <h1><%= @list.name %></h1>
-  <p><%= link_to "Add a movie to my list", new_list_bookmark_path(@list) %></p>
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newmovieModal">
+    Add a movie to my list
+  </button>
   <h2>All my movies</h2>
   <% @list.movies.each do |movie| %>
     <% bookmark = Bookmark.find_by(list: @list, movie: movie) %>
@@ -12,4 +15,21 @@
     <br>
   <% end %>
   <%= link_to "Delete this list", list_path(@list), data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to remove #{@list.name} list?"} %>
+  <%= render "bookmarks/modal", list: @list, bookmark: @bookmark %>
+
+  <h2>Reviews of my collection</h2>
+  <% if @list.reviews.empty? %>
+    <small><em class="text-muted">Be the first one to review this list</em></small>
+  <% end %>
+  <% @list.reviews.each do |review| %>
+    <%= review.comment %>
+    <%= review.rating %>
+  <% end %>
+
+  <h3>Add a new review</h3>
+  <%= simple_form_for [@list, @review] do |f| %>
+    <%= f.input :comment, placeholder: "Add a comment" %>
+    <%= f.input :rating,  as: :numeric, input_html: { min: '0', max: '5' } %>
+    <%= f.button :submit, class: "btn btn-primary" %>
+  <% end %>
 </div>
